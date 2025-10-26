@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила чата — Олис</title>
+    
+    <!-- Минимальные и необходимые внешние ссылки: Tailwind и Font Inter -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Переменные для цветовой схемы */
+        :root {
+            --foreground: #F8FAFC; /* Slate 50 */
+            --muted-foreground: #94A3B8; /* Slate 400 */
+            --card-border: #1E293B; /* Slate 800 */
+            --primary: #8B5CF6; /* Violet 500 */
+            --destructive: #EF4444; /* Red 500 */
+            --background: #071018; /* Very dark background */
+        }
+        
+        /* Базовые стили */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            /* Убеждаемся, что нет горизонтальной прокрутки */
+            overflow-x: hidden; 
+        }
+        .text-foreground { color: var(--foreground); }
+        .text-muted-foreground { color: var(--muted-foreground); }
+        .border-card-border { border-color: var(--card-border); }
+
+        /* Эффект Glassmorphism (упрощен для оптимизации) */
+        .glass-card {
+            background-color: rgba(17, 24, 39, 0.7); 
+            backdrop-filter: blur(8px); /* Снизил blur для оптимизации */
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Упростил тень */
+            transition: all 0.2s ease-in-out; /* Сократил transition */
+        }
+
+        /* Эффекты при наведении (более быстрые) */
+        .hover-elevate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+        }
+        .active-elevate-2:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        
+        /* --- Стили для SVG: ГАРАНТИЯ РАЗМЕРА ИКОНОК --- */
+        /* Устанавливаем максимальный размер по умолчанию для всех SVG внутри карточек */
+        .glass-card svg {
+            max-width: 100%; /* Убеждаемся, что они не выходят за пределы контейнера */
+            max-height: 100%;
+            /* Добавляем !important, чтобы быть уверенными, что Tailwind классы применятся */
+            width: initial !important; 
+            height: initial !important;
+            transition: none !important; /* Отключаем переходы на самих иконках */
+        }
+        /* --- Оптимизированные стили анимации (для плавности) --- */
+
+        /* Начальные состояния: очень маленькое смещение для производительности */
+        .animate-initial-y { opacity: 0; transform: translateY(5px); } 
+        .animate-initial-x { opacity: 0; transform: translateX(-5px); }
+        .animate-initial-opacity { opacity: 0; }
+
+        /* Конечное состояние: быстрый переход */
+        .animate-target {
+            opacity: 1;
+            transform: translate(0, 0);
+            /* Ускорен переход до 0.3s */
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out; 
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-[--background] text-white relative font-sans overflow-x-hidden">
+        <!-- Фон: Используем только статические градиентные фигуры для высокой производительности -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/4 -left-32 w-80 h-80 bg-gradient-to-tr from-cyan-500/15 to-indigo-500/15 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-32 right-1/4 w-72 h-72 bg-gradient-to-tl from-pink-500/20 to-rose-500/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- Основное содержимое -->
+        <div id="main-content" class="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+            <!-- Контент будет сгенерирован JS -->
+        </div>
+
+    </div>
+
+    <script>
+        // Данные правил
+        const rulesByCategory = {
+            ban: {
+                title: "Бан",
+                description: "Нарушения караются немедленным баном",
+                color: "from-red-500 to-rose-600",
+                rules: [
+                    { id: "1.1", title: "Реклама, промо и попрошайничество", description: "Запрещено использовать группу и её участников для рекламы, продажи, продвижения услуг или сбора денег.", punishment: undefined, icon: 'Ban', gradient: "from-red-500 to-orange-500" },
+                    { id: "1.5", title: "Обход правил и ботов", description: "Попытки обойти ограничения бота, правила или повторные нарушения — караются строго.", punishment: undefined, icon: 'Lock', gradient: "from-rose-500 to-pink-500" },
+                    { id: "1.6", title: "Контент, запрещённый приложением", description: "Любой контент, который запрещён самим Telegram (NSFW/NSFL, Zalgo и т.д.) удаляется без предупреждения.", punishment: undefined, icon: 'FileX', gradient: "from-orange-500 to-red-500" },
+                ],
+            },
+            mute: {
+                title: "Мут",
+                description: "Временная блокировка отправки сообщений",
+                color: "from-yellow-500 to-amber-600",
+                rules: [
+                    { id: "1.2", title: "Флуд и спам", description: "Любой вид флуда: отправка подряд 10 и более стикеров/гиф или бессмысленные повторяющиеся сообщения.", punishment: "⚠️ мут от 1 часа до 48 часов", icon: 'MessageSquareOff', gradient: "from-yellow-400 to-orange-400" },
+                ],
+            },
+            mixed: {
+                title: "Предупреждение / Бан",
+                description: "Серьёзные нарушения с градацией наказаний",
+                color: "from-purple-500 to-indigo-600",
+                rules: [
+                    // Для избежания путаницы с иконкой наказания, используем здесь другой значок для правила
+                    { id: "1.3", title: "Запрещённые темы", description: "Запрещено обсуждение насилия, расизма, нацизма, политики, детской порнографии, слива личных данных, педофилии, зоофилии, призывов к самоубийству, любой дискриминации.", punishment: "⚠️ мут + предупреждение / бан", icon: 'ShieldAlert', gradient: "from-purple-500 to-violet-500" },
+                    { id: "1.4", title: "Дезинформация и раскрытие данных", description: "Распространение фейков, сливов, личной информации без согласия, шантаж и угрозы — запрещено.", punishment: "⚠️ предупреждение / бан", icon: 'AlertTriangle', gradient: "from-indigo-500 to-blue-500" },
+                ],
+            },
+        };
+
+        // --- SVG Icons (Lucide Icons) ---
+        const icons = {
+            Ban: '<path d="m4.93 4.93 14.14 14.14"/><circle cx="12" cy="12" r="10"/>',
+            Lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+            FileX: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m14.5 14.5-5-5"/><path d="m9.5 14.5 5-5"/>',
+            MessageSquareOff: '<path d="M15.4 15.4A3.4 3.4 0 0 1 12 17c-1.3 0-2.6-.5-3.5-1.5L5 19l2.4-2.4"/><path d="M22 13c0 3.3-2.7 6-6 6H8l-2 2V6c0-3.3 2.7-6 6-6h4"/><path d="M2 2l20 20"/>',
+            ShieldAlert: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+            AlertTriangle: '<path d="m21.73 18-9-15-9 15z"/><path d="M12 12v4"/><path d="M12 18h.01"/>',
+        };
+
+        /**
+         * Генерирует SVG-иконку.
+         * @param {string} iconName - Ключ из карты 'icons'.
+         * @param {string} classNames - Tailwind классы для размера, цвета и т.д.
+         * @returns {HTMLElement} SVG-элемент.
+         */
+        function getIcon(iconName, classNames) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', 'currentColor');
+            svg.setAttribute('stroke-width', '2');
+            svg.setAttribute('stroke-linecap', 'round');
+            svg.setAttribute('stroke-linejoin', 'round');
+            // Устанавливаем ширину и высоту через style атрибуты как дополнительную гарантию,
+            // чтобы SVG не растягивался на весь контейнер, если Tailwind классы не сработают.
+            const sizeClasses = classNames.match(/w-(\d+)\s+h-(\d+)/) || classNames.match(/w-\[(.*?)\]\s+h-\[(.*?)\]/);
+            if (sizeClasses) {
+                 // Убираем жесткую установку w/h в style, полагаясь на Tailwind,
+                 // но убеждаемся, что strokeWidth установлен правильно.
+                 svg.setAttribute('stroke-width', '2'); 
+            } else {
+                 // Если нет явных w/h, устанавливаем по умолчанию. 
+                 // Это маловероятно, но добавляет отказоустойчивость.
+                 svg.setAttribute('width', '24');
+                 svg.setAttribute('height', '24');
+            }
+            svg.className = classNames; 
+            
+            svg.innerHTML = icons[iconName] || '';
+            return svg;
+        }
+
+        // --- Логика Анимации (Intersection Observer) ---
+        
+        /**
+         * Настройка Intersection Observer для запуска анимаций при скролле.
+         */
+        function setupAnimations() {
+            // Оптимизируем Observer: один экземпляр для всех элементов
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delayAttr = entry.target.getAttribute('data-animation-delay');
+                        // Задержки сокращены до минимума для быстрого появления
+                        const delay = delayAttr ? parseFloat(delayAttr) * 500 : 0; 
+
+                        setTimeout(() => {
+                            // Удаляем начальные классы и добавляем целевой
+                            entry.target.classList.remove('animate-initial-y', 'animate-initial-x', 'animate-initial-opacity');
+                            entry.target.classList.add('animate-target');
+                        }, delay);
+                        
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                // threshold 0.1: анимация запускается, когда 10% элемента видно
+                rootMargin: '0px',
+                threshold: 0.1 
+            });
+
+            // Наблюдаем за всеми анимируемыми элементами
+            document.querySelectorAll('[data-animate]').forEach(element => {
+                // Устанавливаем начальное состояние
+                const type = element.getAttribute('data-animate');
+                if (type === 'y') element.classList.add('animate-initial-y');
+                if (type === 'x') element.classList.add('animate-initial-x');
+                if (type === 'opacity') element.classList.add('animate-initial-opacity');
+
+                observer.observe(element);
+            });
+        }
+
+
+        // --- Вспомогательная функция для создания элементов ---
+
+        function createElement(tag, classes = '', content = '', attributes = {}) {
+            const el = document.createElement(tag);
+            el.className = classes;
+            if (content) {
+                el.innerHTML = content;
+            }
+            for (const key in attributes) {
+                if (attributes[key] !== undefined) {
+                    el.setAttribute(key, attributes[key]);
+                }
+            }
+            return el;
+        }
+
+        // --- Логика рендеринга ---
+
+        function renderApp() {
+            const mainContent = document.getElementById('main-content');
+            
+            // 1. Header
+            const header = createElement('header', 'text-center mb-10 sm:mb-12', '', { 
+                'data-animate': 'y', 
+                'data-animation-delay': '0',
+                'data-testid': 'header'
+            });
+
+            // Logo
+            // СТРОЧКА ДЛЯ ЗАМЕНЫ ЛОГОТИПА
+            const logoContainer = createElement('div', 'inline-block mb-4 sm:mb-6');
+            logoContainer.innerHTML = `
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-2xl relative mx-auto overflow-hidden transition-transform duration-150 border-4 border-primary/50" 
+                    onmouseover="this.classList.add('scale-105', 'rotate-3')" 
+                    onmouseout="this.classList.remove('scale-105', 'rotate-3')"
+                    data-testid="logo-container">
+                    
+                    <!-- !!! ЭТА СТРОКА ЗАМЕНЯЕТ SVG-ЛОГОТИП НА ВАШЕ ИЗОБРАЖЕНИЕ !!! -->
+                    <!-- Здесь используется URL-адрес вашей загруженной фотографии собаки (photo_2025-10-25_01-07-16.jpg) -->
+                    <img src="photo_2025-10-25_01-07-16.jpg" 
+                         alt="Логотип чата (фотография собаки)" 
+                         class="w-full h-full object-cover relative z-10"
+                         onerror="this.onerror=null; this.src='https://placehold.co/120x120/1a1a2e/ffffff?text=Logo';"
+                    />
+
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-blue-500 opacity-50 blur-xl"></div>
+                </div>
+            `;
+            header.appendChild(logoContainer);
+            // КОНЕЦ СТРОЧКИ ДЛЯ ЗАМЕНЫ ЛОГОТИПА
+
+            // Title
+            const title = createElement('h1', 'text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3 px-4', 'Правила чата — Олис', { 
+                'data-animate': 'y', 
+                'data-animation-delay': '0.1', 
+                'data-testid': 'page-title'
+            });
+
+            // Description
+            const description = createElement('p', 'text-muted-foreground text-sm sm:text-base md:text-lg mb-6 px-4 max-w-2xl mx-auto', 'Коротко и честно: соблюдай правила — оставайся в чате. Не знаешь — читай ниже.', { 
+                'data-animate': 'y', 
+                'data-animation-delay': '0.2', 
+                'data-testid': 'page-description'
+            });
+
+            // Quick Nav
+            const nav = createElement('div', 'flex flex-wrap gap-2 sm:gap-3 justify-center px-4', '', { 
+                'data-animate': 'opacity', 
+                'data-animation-delay': '0.3', 
+                'data-testid': 'quick-nav'
+            });
+            nav.innerHTML = `
+                <a href="#rules" class="glass-card px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-primary/30 text-[--primary] font-semibold text-xs sm:text-sm hover-elevate active-elevate-2 transition-all">Правила</a>
+                <a href="#info" class="glass-card px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-primary/30 text-[--primary] font-semibold text-xs sm:text-sm hover-elevate active-elevate-2 transition-all">Стоит знать</a>
+            `;
+
+            header.appendChild(title);
+            header.appendChild(description);
+            header.appendChild(nav);
+            mainContent.appendChild(header);
+
+            // 2. Rules Section
+            const rulesSection = createElement('section', 'mb-12 sm:mb-16 space-y-8 sm:space-y-10', '', { id: 'rules' });
+            
+            Object.entries(rulesByCategory).forEach(([categoryKey, category], categoryIndex) => {
+                const categoryContainer = createElement('div', 'space-y-4', '', {
+                    'data-animate': 'y',
+                    'data-animation-delay': `${0.4 + categoryIndex * 0.1}`, 
+                });
+
+                // Category Header
+                const categoryHeader = createElement('div', 'flex items-center gap-3 px-2');
+                categoryHeader.innerHTML = `
+                    <div class="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-r ${category.color}"></div>
+                    <div class="flex-1">
+                        <h2 class="text-xl sm:text-2xl font-bold text-foreground">${category.title}</h2>
+                        <p class="text-xs sm:text-sm text-muted-foreground mt-1">${category.description}</p>
+                    </div>
+                `;
+                categoryContainer.appendChild(categoryHeader);
+
+                // Rules List
+                const rulesList = createElement('div', 'space-y-3 sm:space-y-4');
+                
+                category.rules.forEach((rule, ruleIndex) => {
+                    const ruleCard = createElement('div', 'glass-card rounded-3xl border border-card-border p-4 sm:p-5 md:p-6 hover-elevate relative overflow-hidden group', '', {
+                        'data-animate': 'x',
+                        'data-animation-delay': `${0.5 + categoryIndex * 0.1 + ruleIndex * 0.05}`, // Очень быстрые задержки
+                        'data-testid': `card-rule-${rule.id}`
+                    });
+                    
+                    // Content
+                    const content = createElement('div', 'relative z-10');
+                    const headerRow = createElement('div', 'flex items-start gap-4 mb-3');
+                    
+                    // Icon Wrapper: W-10/12 H-10/12
+                    const iconWrapper = createElement('div', `flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${rule.gradient} flex items-center justify-center shadow-lg`);
+                    // Иконка правила: размер w-5/6 h-5/6
+                    iconWrapper.appendChild(getIcon(rule.icon, 'w-5 h-5 sm:w-6 sm:h-6 text-white'));
+                    
+                    // Text Content 
+                    const textContent = createElement('div', 'flex-1 min-w-0 pt-0.5'); 
+                    textContent.innerHTML = `
+                        <h3 class="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2">${rule.title}</h3>
+                        <p class="text-sm sm:text-base text-muted-foreground leading-relaxed">${rule.description}</p>
+                    `;
+                    
+                    headerRow.appendChild(iconWrapper);
+                    headerRow.appendChild(textContent);
+                    content.appendChild(headerRow);
+                    
+                    // Punishment (if custom)
+                    if (rule.punishment) {
+                        const punishmentDiv = createElement('div', 'sm:ml-[4.5rem] mt-2'); 
+                        const punishmentSpan = createElement('span', 'text-destructive font-bold text-xs sm:text-sm flex items-center gap-2', rule.punishment);
+                        // Иконка наказания: меньший размер w-3/4 h-3/4
+                        punishmentDiv.prepend(punishmentSpan);
+                        content.appendChild(punishmentDiv);
+                    }
+
+                    ruleCard.appendChild(content);
+                    rulesList.appendChild(ruleCard);
+                });
+
+                categoryContainer.appendChild(rulesList);
+                rulesSection.appendChild(categoryContainer);
+            });
+
+            mainContent.appendChild(rulesSection);
+
+            // 3. Info Section
+            const infoSection = createElement('section', 'space-y-4 sm:space-y-5', '', { id: 'info' });
+            
+            const infoTitle = createElement('h2', 'text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-4 sm:mb-6 px-2', 'Стоит знать', { 'data-animate': 'opacity', 'data-animation-delay': '0.8' }); 
+            infoSection.appendChild(infoTitle);
+
+            const infoItems = [
+                { 
+                    title: null, 
+                    content: `
+                        <ul class="text-sm sm:text-base text-muted-foreground space-y-2 leading-relaxed">
+                            <li>• Выданные баны не подлежат апелляции и часто бывают перманентными.</li>
+                            <li>• Правила могут обновляться — следите за изменениями.</li>
+                        </ul>
+                    `, 
+                    delay: 0.9, 
+                    isPS: false
+                },
+                { 
+                    title: 'Автоматизация', 
+                    content: `<p class="text-sm sm:text-base text-muted-foreground leading-relaxed">Все слова из стоп-листа удаляются автоматически и пользователю выдается мут. В стоп-лист могут входить: политические темы, терроризм, реклама, попрошайничество, сливы, спам и прочее.</p>`, 
+                    delay: 1.0, 
+                    isPS: false
+                },
+                { 
+                    title: 'Справочник', 
+                    content: `
+                        <div class="text-sm sm:text-base text-muted-foreground space-y-2 sm:space-y-3 leading-relaxed">
+                            <p><strong class="text-foreground">Бан</strong> — временное или перманентное ограничение действий пользователя.</p>
+                            <p><strong class="text-foreground">Мут</strong> — временная или перманентная приостановка отправки сообщений.</p>
+                            <p><strong class="text-foreground">Предупреждение</strong> — после 3 предупреждений — бан на 30 дней.</p>
+                        </div>
+                    `, 
+                    delay: 1.1, 
+                    isPS: false
+                },
+                { 
+                    title: null, 
+                    isPS: true,
+                    content: `<p class="text-sm sm:text-base text-muted-foreground leading-relaxed"><strong class="text-foreground">P.S.</strong> Незнание правил не освобождает от ответственности. Оправдания типо «это я пошутил», «меня взломали» и т.д. не пройдут.</p>`, 
+                    delay: 1.2, 
+                    testid: 'card-ps'
+                }
+            ];
+
+            infoItems.forEach(item => {
+                const card = createElement('div', 
+                    `glass-card rounded-3xl border ${item.isPS ? 'border-primary/20 p-4 sm:p-5 md:p-6 bg-primary/5' : 'border-card-border p-4 sm:p-5 md:p-6'}`, '', {
+                    'data-animate': 'y',
+                    'data-animation-delay': `${item.delay}`,
+                    'data-testid': item.testid
+                });
+                
+                if (item.title) {
+                    card.innerHTML += `<h3 class="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">${item.title}</h3>`;
+                }
+                card.innerHTML += item.content;
+                infoSection.appendChild(card);
+            });
+            
+            mainContent.appendChild(infoSection);
+
+            // 4. Footer
+            const footer = createElement('footer', 'mt-12 sm:mt-16 pt-6 sm:pt-8 pb-4 border-t border-card-border text-center', '', {
+                'data-animate': 'opacity',
+                'data-animation-delay': '1.3',
+                'data-testid': 'footer'
+            });
+            footer.innerHTML = `<p class="text-muted-foreground text-xs sm:text-sm px-4">© Правила чата «олис» — обновляются по необходимости, об обновлениях будут уведомлять в канале</p>`;
+            
+            mainContent.appendChild(footer);
+
+            // Запускаем анимации после построения DOM
+            setupAnimations();
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', renderApp);
+    </script>
+</body>
+</html>
