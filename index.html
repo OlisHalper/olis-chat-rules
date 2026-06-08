@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Правила чата — Олис</title>
+    <title>Правила чату — Оліс</title>
     
-    <!-- Минимальные и необходимые внешние ссылки: Tailwind и Font Inter -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     
     <style>
-        /* Переменные для цветовой схемы */
+        /* Змінні для колірної схеми */
         :root {
             --foreground: #F8FAFC; /* Slate 50 */
             --muted-foreground: #94A3B8; /* Slate 400 */
@@ -20,28 +19,28 @@
             --background: #071018; /* Very dark background */
         }
         
-        /* Базовые стили */
+        /* Базові стили */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--background);
             color: var(--foreground);
-            /* Убеждаемся, что нет горизонтальной прокрутки */
+            /* Переконуємося, що немає горизонтальної прокрутки */
             overflow-x: hidden; 
         }
         .text-foreground { color: var(--foreground); }
         .text-muted-foreground { color: var(--muted-foreground); }
         .border-card-border { border-color: var(--card-border); }
 
-        /* Эффект Glassmorphism (упрощен для оптимизации) */
+        /* Ефект Glassmorphism (спрощений для оптимізації) */
         .glass-card {
             background-color: rgba(17, 24, 39, 0.7); 
-            backdrop-filter: blur(8px); /* Снизил blur для оптимизации */
+            backdrop-filter: blur(8px); /* Знизив blur для оптимізації */
             -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Упростил тень */
-            transition: all 0.2s ease-in-out; /* Сократил transition */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Спростив тінь */
+            transition: all 0.2s ease-in-out; /* Скоротив transition */
         }
 
-        /* Эффекты при наведении (более быстрые) */
+        /* Ефекти при наведенні (швидші) */
         .hover-elevate:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
@@ -51,28 +50,28 @@
             box-shadow: none;
         }
         
-        /* --- Стили для SVG: ГАРАНТИЯ РАЗМЕРА ИКОНОК --- */
-        /* Устанавливаем максимальный размер по умолчанию для всех SVG внутри карточек */
+        /* --- Стилі для SVG: ГАРАНТІЯ РОЗМІРУ ІКОНОК --- */
+        /* Встановлюємо максимальный розмір за замовчуванням для всіх SVG всередині карток */
         .glass-card svg {
-            max-width: 100%; /* Убеждаемся, что они не выходят за пределы контейнера */
+            max-width: 100%; /* Переконуємося, що вони не виходять за межі контейнера */
             max-height: 100%;
-            /* Добавляем !important, чтобы быть уверенными, что Tailwind классы применятся */
+            /* Додаємо !important, щоб бути впевненими, що Tailwind класи застосуються */
             width: initial !important; 
             height: initial !important;
-            transition: none !important; /* Отключаем переходы на самих иконках */
+            transition: none !important; /* Вимикаємо переходи на самих іконках */
         }
-        /* --- Оптимизированные стили анимации (для плавности) --- */
+        /* --- Оптимізовані стили анімації (для плавності) --- */
 
-        /* Начальные состояния: очень маленькое смещение для производительности */
+        /* Початкові стани: дуже мале зміщення для продуктивності */
         .animate-initial-y { opacity: 0; transform: translateY(5px); } 
         .animate-initial-x { opacity: 0; transform: translateX(-5px); }
         .animate-initial-opacity { opacity: 0; }
 
-        /* Конечное состояние: быстрый переход */
+        /* Кінцевий стан: швидкий перехід */
         .animate-target {
             opacity: 1;
             transform: translate(0, 0);
-            /* Ускорен переход до 0.3s */
+            /* Прискорено перехід до 0.3s */
             transition: opacity 0.3s ease-out, transform 0.3s ease-out; 
         }
         
@@ -80,49 +79,46 @@
 </head>
 <body>
     <div id="app" class="min-h-screen bg-[--background] text-white relative font-sans overflow-x-hidden">
-        <!-- Фон: Используем только статические градиентные фигуры для высокой производительности -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
             <div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
             <div class="absolute top-1/4 -left-32 w-80 h-80 bg-gradient-to-tr from-cyan-500/15 to-indigo-500/15 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-32 right-1/4 w-72 h-72 bg-gradient-to-tl from-pink-500/20 to-rose-500/20 rounded-full blur-3xl"></div>
         </div>
 
-        <!-- Основное содержимое -->
         <div id="main-content" class="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
-            <!-- Контент будет сгенерирован JS -->
-        </div>
+            </div>
 
     </div>
 
     <script>
-        // Данные правил
+        // Дані правил
         const rulesByCategory = {
             ban: {
                 title: "Бан",
-                description: "Нарушения караются немедленным баном",
+                description: "Порушення караються негайним баном",
                 color: "from-red-500 to-rose-600",
                 rules: [
-                    { id: "1.1", title: "Реклама, промо и попрошайничество", description: "Запрещено использовать группу и её участников для рекламы, продажи, продвижения услуг или сбора денег.", punishment: undefined, icon: 'Ban', gradient: "from-red-500 to-orange-500" },
-                    { id: "1.5", title: "Обход правил и ботов", description: "Попытки обойти ограничения бота, правила или повторные нарушения — караются строго.", punishment: undefined, icon: 'Lock', gradient: "from-rose-500 to-pink-500" },
-                    { id: "1.6", title: "Контент, запрещённый приложением", description: "Любой контент, который запрещён самим Telegram (NSFW/NSFL, Zalgo и т.д.) удаляется без предупреждения.", punishment: undefined, icon: 'FileX', gradient: "from-orange-500 to-red-500" },
+                    { id: "1.1", title: "Реклама, промо та жебрацтво", description: "Заборонено використовувати групу та її учасників для реклами, продажу, просування послуг або збору грошей.", punishment: undefined, icon: 'Ban', gradient: "from-red-500 to-orange-500" },
+                    { id: "1.5", title: "Обхід правил та ботів", description: "Спроби обійти обмеження бота, правила або повторні порушення — караються суворо.", punishment: undefined, icon: 'Lock', gradient: "from-rose-500 to-pink-500" },
+                    { id: "1.6", title: "Контент, заборонений додатком", description: "Будь-який контент, який заборонений самим Telegram (NSFW/NSFL, Zalgo тощо) видаляється без попередження.", punishment: undefined, icon: 'FileX', gradient: "from-orange-500 to-red-500" },
                 ],
             },
             mute: {
                 title: "Мут",
-                description: "Временная блокировка отправки сообщений",
+                description: "Тимчасове блокування відправки повідомлень",
                 color: "from-yellow-500 to-amber-600",
                 rules: [
-                    { id: "1.2", title: "Флуд и спам", description: "Любой вид флуда: отправка подряд 10 и более стикеров/гиф или бессмысленные повторяющиеся сообщения.", punishment: "⚠️ мут от 1 часа до 48 часов", icon: 'MessageSquareOff', gradient: "from-yellow-400 to-orange-400" },
+                    { id: "1.2", title: "Флуд та спам", description: "Будь-який вид флуду: відправка поспіль 10 і більше стікерів/гіфок або безглузді повідомлення, що повторюються.", punishment: "⚠️ мут від 1 години до 48 годин", icon: 'MessageSquareOff', gradient: "from-yellow-400 to-orange-400" },
                 ],
             },
             mixed: {
-                title: "Предупреждение / Бан",
-                description: "Серьёзные нарушения с градацией наказаний",
+                title: "Попередження / Бан",
+                description: "Серйозні порушення з градацією покарань",
                 color: "from-purple-500 to-indigo-600",
                 rules: [
                     // Для избежания путаницы с иконкой наказания, используем здесь другой значок для правила
-                    { id: "1.3", title: "Запрещённые темы", description: "Запрещено обсуждение насилия, расизма, нацизма, политики, детской порнографии, слива личных данных, педофилии, зоофилии, призывов к самоубийству, любой дискриминации.", punishment: "⚠️ мут + предупреждение / бан", icon: 'ShieldAlert', gradient: "from-purple-500 to-violet-500" },
-                    { id: "1.4", title: "Дезинформация и раскрытие данных", description: "Распространение фейков, сливов, личной информации без согласия, шантаж и угрозы — запрещено.", punishment: "⚠️ предупреждение / бан", icon: 'AlertTriangle', gradient: "from-indigo-500 to-blue-500" },
+                    { id: "1.3", title: "Заборонені теми", description: "Заборонено обговорення насильства, расизму, нацизму, політики, дитячої порнографії, зливу особистих даних, педофілії, зоофілії, закликів до самогубства, будь-якої дискримінації.", punishment: "⚠️ мут + попередження / бан", icon: 'ShieldAlert', gradient: "from-purple-500 to-violet-500" },
+                    { id: "1.4", title: "Дезінформація та розкриття даних", description: "Поширення фейків, зливів, особистої інформації без згоди, шантаж та погрози — заборонено.", punishment: "⚠️ попередження / бан", icon: 'AlertTriangle', gradient: "from-indigo-500 to-blue-500" },
                 ],
             },
         };
@@ -138,10 +134,10 @@
         };
 
         /**
-         * Генерирует SVG-иконку.
-         * @param {string} iconName - Ключ из карты 'icons'.
-         * @param {string} classNames - Tailwind классы для размера, цвета и т.д.
-         * @returns {HTMLElement} SVG-элемент.
+         * Генерує SVG-іконку.
+         * @param {string} iconName - Ключ з карти 'icons'.
+         * @param {string} classNames - Tailwind класи для розміру, кольору тощо.
+         * @returns {HTMLElement} SVG-елемент.
          */
         function getIcon(iconName, classNames) {
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -170,10 +166,10 @@
             return svg;
         }
 
-        // --- Логика Анимации (Intersection Observer) ---
+        // --- Логіка Анімації (Intersection Observer) ---
         
         /**
-         * Настройка Intersection Observer для запуска анимаций при скролле.
+         * Налаштування Intersection Observer для запуска анімацій при скролі.
          */
         function setupAnimations() {
             // Оптимизируем Observer: один экземпляр для всех элементов
@@ -194,7 +190,7 @@
                     }
                 });
             }, {
-                // threshold 0.1: анимация запускается, когда 10% элемента видно
+                // threshold 0.1: анімація запускається, коли видно 10% елемента
                 rootMargin: '0px',
                 threshold: 0.1 
             });
@@ -212,7 +208,7 @@
         }
 
 
-        // --- Вспомогательная функция для создания элементов ---
+        // --- Допоміжна функція для створення елементів ---
 
         function createElement(tag, classes = '', content = '', attributes = {}) {
             const el = document.createElement(tag);
@@ -228,7 +224,7 @@
             return el;
         }
 
-        // --- Логика рендеринга ---
+        // --- Логіка рендерингу ---
 
         function renderApp() {
             const mainContent = document.getElementById('main-content');
@@ -241,7 +237,7 @@
             });
 
             // Logo
-            // СТРОЧКА ДЛЯ ЗАМЕНЫ ЛОГОТИПА
+            // РЯДОК ДЛЯ ЗАМІНИ ЛОГОТИПУ
             const logoContainer = createElement('div', 'inline-block mb-4 sm:mb-6');
             logoContainer.innerHTML = `
                 <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-2xl relative mx-auto overflow-hidden transition-transform duration-150 border-4 border-primary/50" 
@@ -249,8 +245,6 @@
                     onmouseout="this.classList.remove('scale-105', 'rotate-3')"
                     data-testid="logo-container">
                     
-                    <!-- !!! ЭТА СТРОКА ЗАМЕНЯЕТ SVG-ЛОГОТИП НА ВАШЕ ИЗОБРАЖЕНИЕ !!! -->
-                    <!-- Здесь используется URL-адрес вашей загруженной фотографии собаки (photo_2025-10-25_01-07-16.jpg) -->
                     <img src="logo.jpg" 
                          alt="Логотип" 
                          class="w-full h-full object-cover relative z-10"
@@ -261,17 +255,17 @@
                 </div>
             `;
             header.appendChild(logoContainer);
-            // КОНЕЦ СТРОЧКИ ДЛЯ ЗАМЕНЫ ЛОГОТИПА
+            // КІНЕЦЬ РЯДКА ДЛЯ ЗАМІНИ ЛОГОТИПУ
 
             // Title
-            const title = createElement('h1', 'text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3 px-4', 'Правила чата — Олис', { 
+            const title = createElement('h1', 'text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3 px-4', 'Правила чату — Оліс', { 
                 'data-animate': 'y', 
                 'data-animation-delay': '0.1', 
                 'data-testid': 'page-title'
             });
 
             // Description
-            const description = createElement('p', 'text-muted-foreground text-sm sm:text-base md:text-lg mb-6 px-4 max-w-2xl mx-auto', 'Коротко и честно: соблюдай правила — оставайся в чате. Не знаешь — читай ниже.', { 
+            const description = createElement('p', 'text-muted-foreground text-sm sm:text-base md:text-lg mb-6 px-4 max-w-2xl mx-auto', 'Коротко і чесно: дотримуйся правил — залишайся в чаті. Не знаєш — читай нижче.', { 
                 'data-animate': 'y', 
                 'data-animation-delay': '0.2', 
                 'data-testid': 'page-description'
@@ -285,7 +279,7 @@
             });
             nav.innerHTML = `
                 <a href="#rules" class="glass-card px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-primary/30 text-[--primary] font-semibold text-xs sm:text-sm hover-elevate active-elevate-2 transition-all">Правила</a>
-                <a href="#info" class="glass-card px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-primary/30 text-[--primary] font-semibold text-xs sm:text-sm hover-elevate active-elevate-2 transition-all">Стоит знать</a>
+                <a href="#info" class="glass-card px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-primary/30 text-[--primary] font-semibold text-xs sm:text-sm hover-elevate active-elevate-2 transition-all">Варто знати</a>
             `;
 
             header.appendChild(title);
@@ -329,7 +323,7 @@
                     
                     // Icon Wrapper: W-10/12 H-10/12
                     const iconWrapper = createElement('div', `flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${rule.gradient} flex items-center justify-center shadow-lg`);
-                    // Иконка правила: размер w-5/6 h-5/6
+                    // Іконка правила: розмір w-5/6 h-5/6
                     iconWrapper.appendChild(getIcon(rule.icon, 'w-5 h-5 sm:w-6 sm:h-6 text-white'));
                     
                     // Text Content 
@@ -365,7 +359,7 @@
             // 3. Info Section
             const infoSection = createElement('section', 'space-y-4 sm:space-y-5', '', { id: 'info' });
             
-            const infoTitle = createElement('h2', 'text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-4 sm:mb-6 px-2', 'Стоит знать', { 'data-animate': 'opacity', 'data-animation-delay': '0.8' }); 
+            const infoTitle = createElement('h2', 'text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-4 sm:mb-6 px-2', 'Варто знати', { 'data-animate': 'opacity', 'data-animation-delay': '0.8' }); 
             infoSection.appendChild(infoTitle);
 
             const infoItems = [
@@ -373,26 +367,26 @@
                     title: null, 
                     content: `
                         <ul class="text-sm sm:text-base text-muted-foreground space-y-2 leading-relaxed">
-                            <li>• Выданные баны не подлежат апелляции и часто бывают перманентными.</li>
-                            <li>• Правила могут обновляться — следите за изменениями.</li>
+                            <li>• Видані бани не підлягають апеляції і часто бувають перманентними.</li>
+                            <li>• Правила можуть оновлюватися — стежте за змінами.</li>
                         </ul>
                     `, 
                     delay: 0.9, 
                     isPS: false
                 },
                 { 
-                    title: 'Автоматизация', 
-                    content: `<p class="text-sm sm:text-base text-muted-foreground leading-relaxed">Все слова из стоп-листа удаляются автоматически и пользователю выдается мут. В стоп-лист могут входить: политические темы, терроризм, реклама, попрошайничество, сливы, спам и прочее.</p>`, 
+                    title: 'Автоматизація', 
+                    content: `<p class="text-sm sm:text-base text-muted-foreground leading-relaxed">Усі слова зі stop-листа видаляються автоматично і користувачеві видається мут. До stop-листа можуть входити: політичні теми, тероризм, реклама, жебрацтво, зливи, спам тощо.</p>`, 
                     delay: 1.0, 
                     isPS: false
                 },
                 { 
-                    title: 'Справочник', 
+                    title: 'Довідник', 
                     content: `
                         <div class="text-sm sm:text-base text-muted-foreground space-y-2 sm:space-y-3 leading-relaxed">
-                            <p><strong class="text-foreground">Бан</strong> — временное или перманентное ограничение действий пользователя.</p>
-                            <p><strong class="text-foreground">Мут</strong> — временная или перманентная приостановка отправки сообщений.</p>
-                            <p><strong class="text-foreground">Предупреждение</strong> — после 3 предупреждений — бан на 30 дней.</p>
+                            <p><strong class="text-foreground">Бан</strong> — тимчасове або перманентне обмеження дій користувача.</p>
+                            <p><strong class="text-foreground">Мут</strong> — тимчасове або перманентне призупинення відправки повідомлень.</p>
+                            <p><strong class="text-foreground">Попередження</strong> — після 3 попереджень — бан на 30 днів.</p>
                         </div>
                     `, 
                     delay: 1.1, 
@@ -401,7 +395,7 @@
                 { 
                     title: null, 
                     isPS: true,
-                    content: `<p class="text-sm sm:text-base text-muted-foreground leading-relaxed"><strong class="text-foreground">P.S.</strong> Незнание правил не освобождает от ответственности. Оправдания типо «это я пошутил», «меня взломали» и т.д. не пройдут.</p>`, 
+                    content: `<p class="text-sm sm:text-base text-muted-foreground leading-relaxed"><strong class="text-foreground">P.S.</strong> Незнання правил не звільняє від відповідальності. Виправдання на кшталт «це я пожартував», «мене зламали» тощо не пройдуть.</p>`, 
                     delay: 1.2, 
                     testid: 'card-ps'
                 }
@@ -430,18 +424,16 @@
                 'data-animation-delay': '1.3',
                 'data-testid': 'footer'
             });
-            footer.innerHTML = `<p class="text-muted-foreground text-xs sm:text-sm px-4">© Правила чата «олис» — обновляются по необходимости, об обновлениях будут уведомлять в канале</p>`;
+            footer.innerHTML = `<p class="text-muted-foreground text-xs sm:text-sm px-4">© Правила чату «оліс» — оновлюються за потреби, про оновлення повідомлятимуть у каналі</p>`;
             
             mainContent.appendChild(footer);
 
-            // Запускаем анимации после построения DOM
+            // Запускаємо анімації після побудови DOM
             setupAnimations();
         }
 
-        // Запуск приложения
+        // Запуск додатка
         document.addEventListener('DOMContentLoaded', renderApp);
     </script>
 </body>
 </html>
-
-
